@@ -20,4 +20,7 @@ inputs:
   db-port:
     description: 'Database port'
     required: true
-    default: '3306'    
+    default: '3306'
+runs:
+  using: 'node16'
+  main: 'index.js'
