@@ -24,6 +24,12 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: 'Set Github Path'
+      run: echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
+      shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+
     - name: 'POC running arbitrary container'
       run: run_container.sh
       shell: 'bash'
