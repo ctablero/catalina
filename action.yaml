@@ -22,5 +22,8 @@ inputs:
     required: true
     default: '3306'
 runs:
-  using: 'node16'
-  main: 'index.js'
+  using: 'composite'
+  steps:
+    - name: 'POC running arbitrary container'
+      run: run_container.sh
+      shell: 'bash'
