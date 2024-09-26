@@ -1,12 +1,16 @@
-name: 'Slim DB'
-description: 'Creates a new empty database that is ephemeral'
+name: 'Catalina tester'
+description: 'Creates tmp DB, run migration files against DB and then drop it'
 inputs:
-  engine:
-    description: 'Database engine'
+  db-image:
+    description: 'Database docker image'
     required: true
     default: 'mysql'
+  db-tag:
+    description: 'Database docker image tag'
+    required: true
+    default: 'alpine'
   db-url:
-    description: 'Database engine'
+    description: 'Database url'
     required: true
     default: 'localhost'
   db-user:
@@ -30,6 +34,10 @@ runs:
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
 
-    - name: 'POC running arbitrary container'
-      run: run_container.sh
+    - name: 'Run slim DB container'
+      run: run_slim_db.sh
+      shell: 'bash'
+
+    - name: 'Clean up'
+      run: clean_up.sh
       shell: 'bash'
