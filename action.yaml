@@ -1,14 +1,14 @@
 name: 'Catalina tester'
 description: 'Creates tmp DB, run migration files against DB and then drop it'
 inputs:
-  db-image:
+  db-image-name:
     description: 'Database docker image'
     required: true
-    default: 'mysql'
-  db-tag:
+    default: 'postgres'
+  db-image-tag:
     description: 'Database docker image tag'
     required: true
-    default: 'alpine'
+    default: 'latest'
   db-url:
     description: 'Database url'
     required: true
@@ -21,10 +21,10 @@ inputs:
     description: 'Database password'
     required: true
     default: '123456'
-  db-port:
-    description: 'Database port'
+  db-host-port:
+    description: 'Database host port'
     required: true
-    default: '3306'
+    default: '3305'
 runs:
   using: 'composite'
   steps:
@@ -34,9 +34,16 @@ runs:
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
 
-    - name: 'Run slim DB container'
-      run: run_slim_db.sh
+    - name: 'Run DB container'
+      run: run_db.sh
       shell: 'bash'
+      env:
+        DB_IMAGE_NAME: ${{ inputs.db-image-name }}
+        DB_IMAGE_TAG: ${{ inputs.db-image-tag }}
+        DB_URL: ${{ inputs.db-url }}
+        DB_USER: ${{ inputs.db-user }}
+        DB_PASSWORD: ${{ inputs.db-password }}
+        DB_HOST_PORT: ${{ inputs.db-host-port }}
 
     - name: 'Clean up'
       run: clean_up.sh

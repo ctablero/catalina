@@ -10,8 +10,9 @@ jobs:
       name: Test db migrations
       uses: ./
       with:
-        engine: mysql
+        db-image-name: 'mysql'
+        db-image-tag: 'latest'
         db-url: 'localhost'
         db-user: 'admin'
         db-password: '123456'
-        db-port: '3306'
+        db-host-port: '3306'
