@@ -24,7 +24,11 @@ inputs:
   db-host-port:
     description: 'Database host port'
     required: true
-    default: '3305'
+    default: '5432'
+  db-internal-port:
+    description: 'Database internal port'
+    required: true
+    default: '5432'
 runs:
   using: 'composite'
   steps:
@@ -44,6 +48,7 @@ runs:
         DB_USER: ${{ inputs.db-user }}
         DB_PASSWORD: ${{ inputs.db-password }}
         DB_HOST_PORT: ${{ inputs.db-host-port }}
+        DB_INTERNAL_PORT: ${{ inputs.db-internal-port }}
 
     - name: 'Clean up'
       run: clean_up.sh

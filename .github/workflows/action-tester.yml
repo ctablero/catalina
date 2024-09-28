@@ -16,3 +16,4 @@ jobs:
         db-user: 'admin'
         db-password: '123456'
         db-host-port: '3306'
+        db-internal-port: '3306'
