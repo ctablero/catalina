@@ -1,0 +1,19 @@
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - id: test_migrations
+      name: Test db migrations
+      uses: ./
+      with:
+        db-image-name: 'mysql'
+        db-image-tag: 'latest'
+        db-url: 'localhost'
+        db-user: 'admin'
+        db-password: '123456'
+        db-host-port: '3306'
+        db-internal-port: '3306'

@@ -1,0 +1,55 @@
+name: 'Catalina tester'
+description: 'Creates tmp DB, run migration files against DB and then drop it'
+inputs:
+  db-image-name:
+    description: 'Database docker image'
+    required: true
+    default: 'postgres'
+  db-image-tag:
+    description: 'Database docker image tag'
+    required: true
+    default: 'latest'
+  db-url:
+    description: 'Database url'
+    required: true
+    default: 'localhost'
+  db-user:
+    description: 'Database user'
+    required: true
+    default: 'admin'
+  db-password:
+    description: 'Database password'
+    required: true
+    default: '123456'
+  db-host-port:
+    description: 'Database host port'
+    required: true
+    default: '5432'
+  db-internal-port:
+    description: 'Database internal port'
+    required: true
+    default: '5432'
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Set Github Path'
+      run: echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
+      shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+
+    - name: 'Run DB container'
+      run: run_db.sh
+      shell: 'bash'
+      env:
+        DB_IMAGE_NAME: ${{ inputs.db-image-name }}
+        DB_IMAGE_TAG: ${{ inputs.db-image-tag }}
+        DB_URL: ${{ inputs.db-url }}
+        DB_USER: ${{ inputs.db-user }}
+        DB_PASSWORD: ${{ inputs.db-password }}
+        DB_HOST_PORT: ${{ inputs.db-host-port }}
+        DB_INTERNAL_PORT: ${{ inputs.db-internal-port }}
+
+    - name: 'Clean up'
+      run: clean_up.sh
+      shell: 'bash'
