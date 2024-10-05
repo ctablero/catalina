@@ -9,8 +9,8 @@ inputs:
     description: 'Database docker image tag'
     required: true
     default: 'latest'
-  db-url:
-    description: 'Database url'
+  db-host:
+    description: 'Database host'
     required: true
     default: 'localhost'
   db-user:
@@ -44,7 +44,7 @@ runs:
       env:
         DB_IMAGE_NAME: ${{ inputs.db-image-name }}
         DB_IMAGE_TAG: ${{ inputs.db-image-tag }}
-        DB_URL: ${{ inputs.db-url }}
+        DB_HOST: ${{ inputs.db-host }}
         DB_USER: ${{ inputs.db-user }}
         DB_PASSWORD: ${{ inputs.db-password }}
         DB_HOST_PORT: ${{ inputs.db-host-port }}
