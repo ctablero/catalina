@@ -6,6 +6,6 @@ WORKDIR /app
 
 RUN npm install knex ${DB_CLIENT}
 
-COPY ./knexfile.js .
+COPY . .
 
 CMD [ "npx", "knex", "migrate:latest" ]

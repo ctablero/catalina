@@ -1,4 +1,12 @@
-const knex = require('knex')({
-    client: process.env.DB_CLIENT,
-    connectionString: process.env.DB_CONNECTION_STRING
-});
+module.exports = {
+    development: {
+        client: 'mysql2',
+        connection: {
+            host: 'some_mysql_db',
+            port: 3306,
+            user: 'root',
+            password: 'example_pass',
+            database: 'testdb',
+        },
+    }
+}
