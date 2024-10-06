@@ -1,3 +1,3 @@
 
 echo "Removing all catalina containers..."
-docker rm -f catalina_db
+docker rm -f "$DB_HOST"
