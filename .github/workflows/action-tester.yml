@@ -11,13 +11,10 @@ jobs:
       uses: ./
       with:
         db-client: 'mysql2'
-        db-host: 'some_mysql_db'
         db-host-port: '3306'
         db-image-name: 'mysql'
         db-image-tag: 'latest'
         db-internal-port: '3306'
-        db-name: 'testdb'
-        db-network: 'database_network'
         db-password: '123456'
         db-user: 'root'
         knex-image-name: 'knex'

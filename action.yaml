@@ -9,18 +9,10 @@ inputs:
     description: 'Database docker image tag'
     required: true
     default: 'latest'
-  db-host:
-    description: 'Database host'
-    required: true
-    default: 'some_mysql_db'
   db-user:
     description: 'Database user'
     required: true
     default: 'root'
-  db-network:
-    description: 'Database network'
-    required: false
-    default: 'database_network'
   db-password:
     description: 'Database password'
     required: true
@@ -57,7 +49,7 @@ runs:
     - name: 'Create Database network'
       shell: 'bash'
       run: |
-        docker network create ${{ inputs.db-network }}
+        docker network create db-network
 
     - name: 'Run Database Server'
       run: run_db.sh
@@ -65,8 +57,8 @@ runs:
       env:
         DB_IMAGE_NAME: ${{ inputs.db-image-name }}
         DB_IMAGE_TAG: ${{ inputs.db-image-tag }}
-        DB_HOST: ${{ inputs.db-host }}
-        DB_NETWORK: ${{ inputs.db-network }}
+        DB_HOST: 'db-host'
+        DB_NETWORK: 'db-network'
         DB_PASSWORD: ${{ inputs.db-password }}
         DB_HOST_PORT: ${{ inputs.db-host-port }}
         DB_INTERNAL_PORT: ${{ inputs.db-internal-port }}
@@ -83,9 +75,9 @@ runs:
       shell: 'bash'
       run: |
         echo "DB_CLIENT=${{ inputs.db-client }}" >> .env
-        echo "DB_HOST=${{ inputs.db-host }}" >> .env
+        echo "DB_HOST=db-host" >> .env
         echo "DB_HOST_PORT=${{ inputs.db-host-port }}" >> .env
-        echo "DB_NAME=${{ inputs.db-name }}" >> .env
+        echo "DB_NAME=temporary_database" >> .env
         echo "DB_PASSWORD=${{ inputs.db-password }}" >> .env
         echo "DB_USER=${{ inputs.db-user }}" >> .env
 
@@ -93,7 +85,7 @@ runs:
       run: run_migrations.sh
       shell: 'bash'
       env:
-        DB_NETWORK: ${{ inputs.db-network }}
+        DB_NETWORK: 'db-network'
         KNEX_IMAGE_NAME: ${{ inputs.knex-image-name }}
         KNEX_IMAGE_TAG: ${{ inputs.knex-image-tag }}
         KNEX_CONTAINER_NAME: 'migration-runner'
@@ -102,4 +94,5 @@ runs:
       run: clean_up.sh
       shell: 'bash'
       env:
-        DB_HOST: ${{ inputs.db-host }}
+        DB_HOST: 'db-host'
+        DB_NETWORK: 'db-network'

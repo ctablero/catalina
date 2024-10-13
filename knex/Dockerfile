@@ -8,4 +8,4 @@ RUN npm install knex ${DB_CLIENT}
 
 COPY . .
 
-CMD [ "npx", "knex", "migrate:latest" ]
+ENTRYPOINT [ "/app/entrypoint.sh" ]
