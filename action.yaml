@@ -4,19 +4,15 @@ inputs:
   db-image-name:
     description: 'Database docker image'
     required: true
-    default: 'postgres'
+    default: 'mysql'
   db-image-tag:
     description: 'Database docker image tag'
     required: true
     default: 'latest'
-  db-url:
-    description: 'Database url'
-    required: true
-    default: 'localhost'
   db-user:
     description: 'Database user'
     required: true
-    default: 'admin'
+    default: 'root'
   db-password:
     description: 'Database password'
     required: true
@@ -24,11 +20,23 @@ inputs:
   db-host-port:
     description: 'Database host port'
     required: true
-    default: '5432'
+    default: '3306'
   db-internal-port:
     description: 'Database internal port'
     required: true
-    default: '5432'
+    default: '3306'
+  db-client:
+    description: 'Database client'
+    required: true
+    default: 'mysql2'
+  knex-image-name:
+    description: 'Knex docker image'
+    required: true
+    default: 'knex'
+  knex-image-tag:
+    description: 'Knex docker image tag'
+    required: true
+    default: 'latest'
 runs:
   using: 'composite'
   steps:
@@ -38,18 +46,66 @@ runs:
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
 
-    - name: 'Run DB container'
+    - name: 'Create Database network'
+      shell: 'bash'
+      run: |
+        docker network create db-network
+
+    - name: 'Run Database Server'
       run: run_db.sh
       shell: 'bash'
       env:
         DB_IMAGE_NAME: ${{ inputs.db-image-name }}
         DB_IMAGE_TAG: ${{ inputs.db-image-tag }}
-        DB_URL: ${{ inputs.db-url }}
-        DB_USER: ${{ inputs.db-user }}
+        DB_HOST: 'db-host'
+        DB_NETWORK: 'db-network'
         DB_PASSWORD: ${{ inputs.db-password }}
         DB_HOST_PORT: ${{ inputs.db-host-port }}
         DB_INTERNAL_PORT: ${{ inputs.db-internal-port }}
 
+    - name: 'Build knex'
+      run: build_knex.sh
+      shell: 'bash'
+      env:
+        DB_CLIENT: ${{ inputs.db-client }}
+        KNEX_IMAGE_NAME: ${{ inputs.knex-image-name }}
+        KNEX_IMAGE_TAG: ${{ inputs.knex-image-tag }}
+
+    - name: 'Prepare .env file'
+      shell: 'bash'
+      run: |
+        echo "DB_CLIENT=${{ inputs.db-client }}" >> .env
+        echo "DB_HOST=db-host" >> .env
+        echo "DB_HOST_PORT=${{ inputs.db-host-port }}" >> .env
+        echo "DB_NAME=temporary_database" >> .env
+        echo "DB_PASSWORD=${{ inputs.db-password }}" >> .env
+        echo "DB_USER=${{ inputs.db-user }}" >> .env
+
+    - name: 'Verify database service readiness'
+      id: verify_db_service_readiness
+      shell: 'bash'
+      run: verify_db_service_readiness.sh
+      env:
+        ATTEMPTS_COUNTER: 0
+        ATTEMPTS_LIMIT: 10
+        DB_HOST: 'db-host'
+        DB_INTERNAL_PORT: ${{ inputs.db-internal-port }}
+        DB_NETWORK: 'db-network'
+
+    - name: 'Run migrations'
+      run: run_migrations.sh
+      shell: 'bash'
+      env:
+        DB_NETWORK: 'db-network'
+        KNEX_IMAGE_NAME: ${{ inputs.knex-image-name }}
+        KNEX_IMAGE_TAG: ${{ inputs.knex-image-tag }}
+        KNEX_CONTAINER_NAME: 'migration-runner'
+      if: ${{ success() }}
+
     - name: 'Clean up'
       run: clean_up.sh
       shell: 'bash'
+      env:
+        DB_HOST: 'db-host'
+        DB_NETWORK: 'db-network'
+      if: ${{ always() }}
