@@ -1,4 +1,6 @@
 
 echo "Starting database server..."
 
-./mysql.sh
+if [ "$RDBMS" = 'mysql' ]; then 
+    ./mysql.sh
+fi
