@@ -10,7 +10,6 @@ jobs:
       name: Test db migrations
       uses: ./
       with:
-        db-client: 'mysql2'
         db-host-port: '3306'
         db-image-name: 'mysql'
         db-image-tag: 'latest'
@@ -19,3 +18,4 @@ jobs:
         db-user: 'root'
         knex-image-name: 'knex'
         knex-image-tag: 'latest'
+        rdbms: 'mysql'
