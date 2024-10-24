@@ -40,6 +40,13 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: 'Copy migration files from workflow to the knex folder'
+      run: |
+        echo "Value of the GITHUB_WORKSPACE variable inside the action"
+        echo $GITHUB_WORKSPACE
+        exit 1        
+      shell: bash
+
     - name: 'Set Github Path'
       run: echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
       shell: bash
