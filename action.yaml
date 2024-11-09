@@ -42,10 +42,15 @@ runs:
   steps:
     - name: 'Copy migration files from workflow to the knex folder'
       run: |
-        echo "Value of the GITHUB_WORKSPACE variable inside the action"
-        echo $GITHUB_WORKSPACE
-        exit 1        
+
+        MIGRATION_WORKFLOW_DIRECTORY="${GITHUB_WORKSPACE%/}/migrations"
+        MIGRATION_ACTION_DIRECTORY="${GITHUB_ACTION_PATH%/}/knex/migrations"
+
+        mkdir -p $MIGRATION_ACTION_DIRECTORY && cp ${MIGRATION_WORKFLOW_DIRECTORY}/* $MIGRATION_ACTION_DIRECTORY
+   
       shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
 
     - name: 'Set Github Path'
       run: echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
