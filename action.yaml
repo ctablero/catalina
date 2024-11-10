@@ -46,6 +46,12 @@ runs:
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
 
+    - name: 'Copy migration files from workflow to the knex folder'
+      run: copy_migration_files.sh
+      shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+
     - name: 'Prepare global variables based on inputs and other defaults'
       run: |
         if [ "$RDBMS" = 'mysql' ]; then
