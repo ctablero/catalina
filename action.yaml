@@ -88,18 +88,6 @@ runs:
         DB_HOST_PORT: ${{ inputs.db-host-port }}
         DB_INTERNAL_PORT: ${{ inputs.db-internal-port }}
 
-    - name: Setup Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Build knex image
-      uses: docker/build-push-action@v6
-      with:
-        build-args: |
-          DB_CLIENT=${{ env.DB_CLIENT }}
-        context: ./knex
-        push: false
-        tags: ${{ inputs.knex-image-name }}:${{ inputs.knex-image-tag }}
-
     - name: 'Prepare .env file'
       shell: 'bash'
       run: |
@@ -124,6 +112,19 @@ runs:
         DB_HOST: ${{ env.DB_HOST }}
         DB_INTERNAL_PORT: ${{ inputs.db-internal-port }}
         DB_NETWORK: ${{ env.DB_NETWORK }}
+
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build knex image
+      uses: docker/build-push-action@v6
+      with:
+        build-args: |
+          DB_CLIENT=${{ env.DB_CLIENT }}
+        context: ./knex
+        load: true
+        push: false
+        tags: ${{ inputs.knex-image-name }}:${{ inputs.knex-image-tag }}
 
     - name: 'Run migrations'
       run: run_migrations.sh
