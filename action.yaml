@@ -56,6 +56,11 @@ runs:
       run: |
         if [ "$RDBMS" = 'mysql' ]; then
           echo "DB_CLIENT=mysql2" >> $GITHUB_ENV
+        elif [ "$RDBMS" = 'mssql' ]; then
+          echo "DB_CLIENT=tedious" >> $GITHUB_ENV
+        else 
+          echo "A valid RDBMS is required to install the db library."
+          exit 1
         fi
 
         # Fixed defaults
