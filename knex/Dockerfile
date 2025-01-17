@@ -1,10 +1,10 @@
 FROM node:alpine
 
-ARG DB_CLIENT
+ARG DB_LIBRARY
 
 WORKDIR /app
 
-RUN npm install knex ${DB_CLIENT}
+RUN npm install knex ${DB_LIBRARY}
 
 COPY . .
 

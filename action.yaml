@@ -56,8 +56,10 @@ runs:
       run: |
         if [ "$RDBMS" = 'mysql' ]; then
           echo "DB_CLIENT=mysql2" >> $GITHUB_ENV
+          echo "DB_LIBRARY=mysql2" >> $GITHUB_ENV
         elif [ "$RDBMS" = 'mssql' ]; then
-          echo "DB_CLIENT=tedious" >> $GITHUB_ENV
+          echo "DB_CLIENT=mssql" >> $GITHUB_ENV
+          echo "DB_LIBRARY=tedious" >> $GITHUB_ENV
         else 
           echo "A valid RDBMS is required to install the db library."
           exit 1
@@ -125,7 +127,7 @@ runs:
       uses: docker/build-push-action@v6
       with:
         build-args: |
-          DB_CLIENT=${{ env.DB_CLIENT }}
+          DB_LIBRARY=${{ env.DB_LIBRARY }}
         context: ./knex
         load: true
         push: false
