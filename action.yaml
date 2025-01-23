@@ -66,7 +66,7 @@ runs:
         fi
 
         # Fixed defaults
-        echo "DB_NAME=tmp-db" >> $GITHUB_ENV
+        echo "DB_NAME=catalina" >> $GITHUB_ENV
         echo "DB_HOST=db-host" >> $GITHUB_ENV
         echo "DB_NETWORK=db-network" >> $GITHUB_ENV
 
@@ -80,14 +80,25 @@ runs:
         docker network create "$DB_NETWORK"
       env:
         DB_NETWORK: ${{ env.DB_NETWORK }}
+    
+    - name: Build custom database image
+      uses: docker/build-push-action@v2
+      with:
+        build-args: |
+          IMAGE_NAME=${{ inputs.db-image-name }}
+          IMAGE_TAG=${{ inputs.db-image-tag }}
+        context: ./custom-dbs/${{ inputs.rdbms }}
+        load: true
+        push: false
+        tags: custom-db:v1
 
     - name: 'Run Database Server'
       run: run_db.sh
       shell: 'bash'
       env:
         RDBMS: ${{ inputs.rdbms }}
-        DB_IMAGE_NAME: ${{ inputs.db-image-name }}
-        DB_IMAGE_TAG: ${{ inputs.db-image-tag }}
+        DB_IMAGE_NAME: custom-db
+        DB_IMAGE_TAG: v1
         DB_HOST: ${{ env.DB_HOST }}
         DB_NAME: ${{ env.DB_NAME }}
         DB_NETWORK: ${{ env.DB_NETWORK }}
