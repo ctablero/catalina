@@ -10,12 +10,12 @@ jobs:
       name: Test db migrations
       uses: ./
       with:
-        db-host-port: '1433'
+        db-host-port: 1433
         db-image-name: 'mcr.microsoft.com/mssql/server'
         db-image-tag: '2019-latest'
-        db-internal-port: '1433'
-        db-password: '123456'
-        db-user: 'root'
+        db-internal-port: 1433
+        db-password: 'yourStrong(!)Password'
+        db-user: 'sa'
         knex-image-name: 'knex'
         knex-image-tag: 'latest'
         rdbms: 'mssql'
