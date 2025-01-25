@@ -35,11 +35,13 @@ runs:
           echo "DB_LIBRARY=mysql2" >> $GITHUB_ENV
           echo "DB_HOST_PORT=3306" >> $GITHUB_ENV
           echo "DB_INTERNAL_PORT=3306" >> $GITHUB_ENV
+          echo "DB_USER=root" >> $GITHUB_ENV
         elif [ "$RDBMS" = 'mssql' ]; then
           echo "DB_CLIENT=mssql" >> $GITHUB_ENV
           echo "DB_LIBRARY=tedious" >> $GITHUB_ENV
           echo "DB_HOST_PORT=1433" >> $GITHUB_ENV
           echo "DB_INTERNAL_PORT=1433" >> $GITHUB_ENV
+          echo "DB_USER=sa" >> $GITHUB_ENV
         else 
           echo "A valid RDBMS is required to install the db library."
           exit 1
@@ -49,9 +51,7 @@ runs:
         echo "DB_NAME=catalina" >> $GITHUB_ENV
         echo "DB_HOST=db-host" >> $GITHUB_ENV
         echo "DB_NETWORK=db-network" >> $GITHUB_ENV
-        echo "DB_USER=sa" >> $GITHUB_ENV
         echo "DB_PASSWORD=yourStrong(!)Password" >> $GITHUB_ENV
-
       shell: bash
       env:
         RDBMS: ${{ inputs.rdbms }}
