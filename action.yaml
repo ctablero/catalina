@@ -9,30 +9,6 @@ inputs:
     description: 'Database docker image tag'
     required: true
     default: 'latest'
-  db-user:
-    description: 'Database user'
-    required: true
-    default: 'root'
-  db-password:
-    description: 'Database password'
-    required: true
-    default: '123456'
-  db-host-port:
-    description: 'Database host port'
-    required: true
-    default: '3306'
-  db-internal-port:
-    description: 'Database internal port'
-    required: true
-    default: '3306'
-  knex-image-name:
-    description: 'Knex docker image'
-    required: true
-    default: 'knex'
-  knex-image-tag:
-    description: 'Knex docker image tag'
-    required: true
-    default: 'latest'
   rdbms:
     description: 'Relational database management system'
     required: true
@@ -57,9 +33,13 @@ runs:
         if [ "$RDBMS" = 'mysql' ]; then
           echo "DB_CLIENT=mysql2" >> $GITHUB_ENV
           echo "DB_LIBRARY=mysql2" >> $GITHUB_ENV
+          echo "DB_HOST_PORT=3306" >> $GITHUB_ENV
+          echo "DB_INTERNAL_PORT=3306" >> $GITHUB_ENV
         elif [ "$RDBMS" = 'mssql' ]; then
           echo "DB_CLIENT=mssql" >> $GITHUB_ENV
           echo "DB_LIBRARY=tedious" >> $GITHUB_ENV
+          echo "DB_HOST_PORT=1433" >> $GITHUB_ENV
+          echo "DB_INTERNAL_PORT=1433" >> $GITHUB_ENV
         else 
           echo "A valid RDBMS is required to install the db library."
           exit 1
@@ -69,10 +49,29 @@ runs:
         echo "DB_NAME=catalina" >> $GITHUB_ENV
         echo "DB_HOST=db-host" >> $GITHUB_ENV
         echo "DB_NETWORK=db-network" >> $GITHUB_ENV
+        echo "DB_USER=sa" >> $GITHUB_ENV
+        echo "DB_PASSWORD=yourStrong(!)Password" >> $GITHUB_ENV
 
       shell: bash
       env:
         RDBMS: ${{ inputs.rdbms }}
+
+    - name: 'Prepare .env file for the migrations executing container'
+      shell: 'bash'
+      run: |
+        echo "DB_CLIENT=$DB_CLIENT" >> .env
+        echo "DB_HOST=$DB_HOST" >> .env
+        echo "DB_HOST_PORT=$DB_HOST_PORT" >> .env
+        echo "DB_NAME=$DB_NAME" >> .env
+        echo "DB_USER=$DB_USER" >> .env
+        echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+      env:
+        DB_CLIENT: ${{ env.DB_CLIENT }}
+        DB_HOST: ${{ env.DB_HOST }}
+        DB_HOST_PORT: ${{ env.DB_HOST_PORT }}
+        DB_NAME: ${{ env.DB_NAME }}
+        DB_USER: ${{ env.DB_USER }}
+        DB_PASSWORD: ${{ env.DB_PASSWORD }}
 
     - name: 'Create Database network'
       shell: 'bash'
@@ -80,7 +79,10 @@ runs:
         docker network create "$DB_NETWORK"
       env:
         DB_NETWORK: ${{ env.DB_NETWORK }}
-    
+
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
     - name: Build custom database image
       uses: docker/build-push-action@v2
       with:
@@ -102,23 +104,9 @@ runs:
         DB_HOST: ${{ env.DB_HOST }}
         DB_NAME: ${{ env.DB_NAME }}
         DB_NETWORK: ${{ env.DB_NETWORK }}
-        DB_PASSWORD: ${{ inputs.db-password }}
-        DB_HOST_PORT: ${{ inputs.db-host-port }}
-        DB_INTERNAL_PORT: ${{ inputs.db-internal-port }}
-
-    - name: 'Prepare .env file'
-      shell: 'bash'
-      run: |
-        echo "DB_CLIENT=$DB_CLIENT" >> .env
-        echo "DB_HOST=$DB_HOST" >> .env
-        echo "DB_HOST_PORT=${{ inputs.db-host-port }}" >> .env
-        echo "DB_NAME=$DB_NAME" >> .env
-        echo "DB_PASSWORD=${{ inputs.db-password }}" >> .env
-        echo "DB_USER=${{ inputs.db-user }}" >> .env
-      env:
-        DB_CLIENT: ${{ env.DB_CLIENT }}
-        DB_HOST: ${{ env.DB_HOST }}
-        DB_NAME: ${{ env.DB_NAME }}
+        DB_PASSWORD: ${{ env.DB_PASSWORD }}
+        DB_HOST_PORT: ${{ env.DB_HOST_PORT }}
+        DB_INTERNAL_PORT: ${{ env.DB_INTERNAL_PORT }}
 
     - name: 'Verify database service readiness'
       id: verify_db_service_readiness
@@ -128,11 +116,8 @@ runs:
         ATTEMPTS_COUNTER: 0
         ATTEMPTS_LIMIT: 10
         DB_HOST: ${{ env.DB_HOST }}
-        DB_INTERNAL_PORT: ${{ inputs.db-internal-port }}
+        DB_INTERNAL_PORT: ${{ env.DB_INTERNAL_PORT }}
         DB_NETWORK: ${{ env.DB_NETWORK }}
-
-    - name: Setup Docker Buildx
-      uses: docker/setup-buildx-action@v3
 
     - name: Build knex image
       uses: docker/build-push-action@v6
@@ -142,15 +127,15 @@ runs:
         context: ./knex
         load: true
         push: false
-        tags: ${{ inputs.knex-image-name }}:${{ inputs.knex-image-tag }}
+        tags: custom-knex:v1
 
     - name: 'Run migrations'
       run: run_migrations.sh
       shell: 'bash'
       env:
         DB_NETWORK: ${{ env.DB_NETWORK }}
-        KNEX_IMAGE_NAME: ${{ inputs.knex-image-name }}
-        KNEX_IMAGE_TAG: ${{ inputs.knex-image-tag }}
+        KNEX_IMAGE_NAME: custom-knex
+        KNEX_IMAGE_TAG: v1
         KNEX_CONTAINER_NAME: 'migration-runner'
       if: ${{ success() }}
 
