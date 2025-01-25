@@ -10,12 +10,6 @@ jobs:
       name: Test db migrations
       uses: ./
       with:
-        db-host-port: '3306'
-        db-image-name: 'mysql'
-        db-image-tag: 'latest'
-        db-internal-port: '3306'
-        db-password: '123456'
-        db-user: 'root'
-        knex-image-name: 'knex'
-        knex-image-tag: 'latest'
-        rdbms: 'mysql'
+        db-image-name: 'mcr.microsoft.com/mssql/server'
+        db-image-tag: '2019-latest'
+        rdbms: 'mssql'
