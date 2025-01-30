@@ -1,8 +1,27 @@
-on: [push]
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      db-image-name:
+        description: 'Database image name'
+        required: true
+        default: 'mcr.microsoft.com/mssql/server'
+      db-image-tag:
+        description: 'Database image tag'
+        required: true
+        default: '2019-latest'
+      rdbms:
+        description: 'Relational database management system'
+        required: true
+        default: 'mssql'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DB_IMAGE_NAME: ${{ inputs.db-image-name || 'mcr.microsoft.com/mssql/server' }}
+      DB_IMAGE_TAG: ${{ inputs.db-image-tag || '2019-latest' }}
+      RDBMS: ${{ inputs.rdbms || 'mssql' }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -10,6 +29,6 @@ jobs:
       name: Test db migrations
       uses: ./
       with:
-        db-image-name: 'mcr.microsoft.com/mssql/server'
-        db-image-tag: '2019-latest'
-        rdbms: 'mssql'
+        db-image-name: ${{ env.DB_IMAGE_NAME }}
+        db-image-tag: ${{ env.DB_IMAGE_TAG }}
+        rdbms: ${{ env.RDBMS }}
