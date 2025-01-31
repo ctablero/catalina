@@ -42,6 +42,12 @@ runs:
           echo "DB_HOST_PORT=1433" >> $GITHUB_ENV
           echo "DB_INTERNAL_PORT=1433" >> $GITHUB_ENV
           echo "DB_USER=sa" >> $GITHUB_ENV
+        elif [ "$RDBMS" = 'postgres' ]; then
+          echo "DB_CLIENT=pg" >> $GITHUB_ENV
+          echo "DB_LIBRARY=pg" >> $GITHUB_ENV
+          echo "DB_HOST_PORT=5432" >> $GITHUB_ENV
+          echo "DB_INTERNAL_PORT=5432" >> $GITHUB_ENV
+          echo "DB_USER=postgres" >> $GITHUB_ENV
         else 
           echo "A valid RDBMS is required to install the db library."
           exit 1
