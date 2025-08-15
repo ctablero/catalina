@@ -58,6 +58,7 @@ runs:
         echo "DB_HOST=db-host" >> $GITHUB_ENV
         echo "DB_NETWORK=db-network" >> $GITHUB_ENV
         echo "DB_PASSWORD=yourStrong(!)Password" >> $GITHUB_ENV
+        echo "DB_EXECUTION_TYPE=migrate" >> $GITHUB_ENV
       shell: bash
       env:
         RDBMS: ${{ inputs.rdbms }}
@@ -71,6 +72,7 @@ runs:
         echo "DB_NAME=$DB_NAME" >> .env
         echo "DB_USER=$DB_USER" >> .env
         echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+        echo "DB_EXECUTION_TYPE=$DB_EXECUTION_TYPE" >> .env
       env:
         DB_CLIENT: ${{ env.DB_CLIENT }}
         DB_HOST: ${{ env.DB_HOST }}
@@ -78,6 +80,7 @@ runs:
         DB_NAME: ${{ env.DB_NAME }}
         DB_USER: ${{ env.DB_USER }}
         DB_PASSWORD: ${{ env.DB_PASSWORD }}
+        DB_EXECUTION_TYPE: ${{ env.DB_EXECUTION_TYPE }}
 
     - name: 'Create Database network'
       shell: 'bash'
@@ -144,6 +147,9 @@ runs:
         KNEX_IMAGE_TAG: v1
         KNEX_CONTAINER_NAME: 'migration-runner'
       if: ${{ success() }}
+
+    #  Continue
+    #- name: 'Run rollback to the previous migration batch'  
 
     - name: 'Clean up'
       run: clean_up.sh
