@@ -139,17 +139,27 @@ runs:
         tags: custom-knex:v1
 
     - name: 'Run migrations'
-      run: run_migrations.sh
+      run: execute_knex.sh
       shell: 'bash'
       env:
         DB_NETWORK: ${{ env.DB_NETWORK }}
         KNEX_IMAGE_NAME: custom-knex
         KNEX_IMAGE_TAG: v1
         KNEX_CONTAINER_NAME: 'migration-runner'
-      if: ${{ success() }}
 
-    #  Continue
-    #- name: 'Run rollback to the previous migration batch'  
+    - name: 'Prepare for the Rollback'
+      run: |
+        sed -i 's/DB_EXECUTION_TYPE=.*/DB_EXECUTION_TYPE=rollback/' .env
+      shell: 'bash'
+
+    - name: 'Run Rollback'
+      run: execute_knex.sh
+      shell: 'bash'
+      env:
+        DB_NETWORK: ${{ env.DB_NETWORK }}
+        KNEX_IMAGE_NAME: custom-knex
+        KNEX_IMAGE_TAG: v1
+        KNEX_CONTAINER_NAME: 'migration-runner'
 
     - name: 'Clean up'
       run: clean_up.sh
