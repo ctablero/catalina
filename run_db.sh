@@ -2,12 +2,12 @@
 echo "Starting database server..."
 
 if [ "$RDBMS" = 'mysql' ]; then 
-    ./mysql.sh
+  ./mysql.sh
 elif [ "$RDBMS" = 'mssql' ]; then
-    ./mssql.sh
+  ./mssql.sh
 elif [ "$RDBMS" = 'postgres' ]; then
-    ./postgres.sh
+  ./postgres.sh
 else
-    echo "Unknown RDBMS"
-    exit 1
+  echo "Unknown RDBMS"
+  exit 1
 fi
